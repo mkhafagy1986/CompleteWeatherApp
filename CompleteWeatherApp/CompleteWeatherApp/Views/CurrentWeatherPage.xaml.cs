@@ -21,7 +21,7 @@ namespace CompleteWeatherApp.Views
             GetWeatherInfo();
         }
 
-        public string Location = "France";
+        public string Location = "Riyadh";
 
         private async void GetWeatherInfo()
         {
@@ -35,7 +35,7 @@ namespace CompleteWeatherApp.Views
                 {
                     var weatherInfo = JsonConvert.DeserializeObject<WeatherInfo>(result.Response);
                     descriptionTxt.Text = weatherInfo.weather[0].description.ToUpper();
-                    iconImg.Source = $"{weatherInfo.weather[0].icon}";
+                    iconImg.Source = $"http://openweathermap.org/img/wn/{weatherInfo.weather[0].icon}@2x.png";
                     cityTxt.Text = weatherInfo.name.ToUpper();
                     temperatureTxt.Text = weatherInfo.main.temp.ToString("0");
                     humidityTxt.Text = $"{weatherInfo.main.humidity}%";
