@@ -18,11 +18,8 @@ namespace CompleteWeatherApp.Views
         public CurrentWeatherPage()
         {
             InitializeComponent();
-            
+
             GetCurrentLocation();
-            
-            GetWeatherInfo();
-            GetForecast();
         }
 
         public string Location { get; set; } = "Jeddah";
@@ -41,6 +38,10 @@ namespace CompleteWeatherApp.Views
                 Longitude = location.Longitude;
 
                 Location = await GetCity(location);
+
+                GetWeatherInfo();
+                GetForecast();
+                GetBackground();
             }
         }
 
@@ -50,8 +51,26 @@ namespace CompleteWeatherApp.Views
             var currentPlace = place?.FirstOrDefault();
 
             if (currentPlace != null)
-                return $"{currentPlace.Locality},{currentPlace.CountryName}";
+            {
+                var governrate = currentPlace.AdminArea.Split(' ')[0];
+                return $"{governrate},{currentPlace.CountryName}";
+            }
             return null;
+        }
+
+        public async void GetBackground()
+        {
+            var url = $"https://api.pexels.com/v1/search?query={Location}&per_page=15&page=1";
+
+            var result = await ApiCaller.Get(url, "563492ad6f91700001000001f3e282e789d44feebfce560ddaf2a7fa");
+            if (result.Successful)
+            {
+                var bgInfo = JsonConvert.DeserializeObject<BackgroundInfo>(result.Response);
+                if (bgInfo != null && bgInfo.photos.Length > 0)
+                {
+                    bgImg.Source = ImageSource.FromUri(new Uri(bgInfo.photos[new Random().Next(0, bgInfo.photos.Length - 1)].src.medium));
+                }
+            }
         }
 
         private async void GetWeatherInfo()
@@ -66,7 +85,8 @@ namespace CompleteWeatherApp.Views
                 {
                     var weatherInfo = JsonConvert.DeserializeObject<WeatherInfo>(result.Response);
                     descriptionTxt.Text = weatherInfo.weather[0].description.ToUpper();
-                    iconImg.Source = $"http://openweathermap.org/img/wn/{weatherInfo.weather[0].icon}@2x.png";
+                    //iconImg.Source = $"http://openweathermap.org/img/wn/{weatherInfo.weather[0].icon}@2x.png";
+                    iconImg.Source = $"w{weatherInfo.weather[0].icon}.png";
                     cityTxt.Text = weatherInfo.name.ToUpper();
                     temperatureTxt.Text = weatherInfo.main.temp.ToString("0");
                     humidityTxt.Text = $"{weatherInfo.main.humidity}%";
@@ -86,7 +106,7 @@ namespace CompleteWeatherApp.Views
             }
             else
             {
-                await DisplayAlert("Weather Information","No weather information found","Ok");
+                await DisplayAlert("Weather Information", "No weather information found", "Ok");
             }
         }
 
@@ -114,22 +134,26 @@ namespace CompleteWeatherApp.Views
 
                     dayOneTxt.Text = DateTime.Parse(allList[0].dt_txt).ToString("dddd");
                     dateOneTxt.Text = DateTime.Parse(allList[0].dt_txt).ToString("dd MMM");
-                    iconOneImg.Source = $"http://openweathermap.org/img/wn/{allList[0].weather[0].icon}@2x.png";
+                    //iconOneImg.Source = $"http://openweathermap.org/img/wn/{allList[0].weather[0].icon}@2x.png";
+                    iconOneImg.Source = $"w{allList[0].weather[0].icon}.png";
                     tempOneTxt.Text = allList[0].main.temp.ToString("0");
 
                     dayTwoTxt.Text = DateTime.Parse(allList[1].dt_txt).ToString("dddd");
                     dateTwoTxt.Text = DateTime.Parse(allList[1].dt_txt).ToString("dd MMM");
                     iconTwoImg.Source = $"http://openweathermap.org/img/wn/{allList[1].weather[0].icon}@2x.png";
+                    iconTwoImg.Source = $"w{allList[1].weather[0].icon}.png";
                     tempTwoTxt.Text = allList[1].main.temp.ToString("0");
 
                     dayThreeTxt.Text = DateTime.Parse(allList[2].dt_txt).ToString("dddd");
                     dateThreeTxt.Text = DateTime.Parse(allList[2].dt_txt).ToString("dd MMM");
-                    iconThreeImg.Source = $"http://openweathermap.org/img/wn/{allList[2].weather[0].icon}@2x.png";
+                    //iconThreeImg.Source = $"http://openweathermap.org/img/wn/{allList[2].weather[0].icon}@2x.png";
+                    iconThreeImg.Source = $"w{allList[2].weather[0].icon}.png";
                     tempThreeTxt.Text = allList[2].main.temp.ToString("0");
 
                     dayFourTxt.Text = DateTime.Parse(allList[3].dt_txt).ToString("dddd");
                     dateFourTxt.Text = DateTime.Parse(allList[3].dt_txt).ToString("dd MMM");
-                    iconFourImg.Source = $"http://openweathermap.org/img/wn/{allList[3].weather[0].icon}@2x.png";
+                    //iconFourImg.Source = $"http://openweathermap.org/img/wn/{allList[3].weather[0].icon}@2x.png";
+                    iconFourImg.Source = $"w{allList[3].weather[0].icon}.png";
                     tempFourTxt.Text = allList[3].main.temp.ToString("0");
 
                 }
